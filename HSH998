@@ -1,0 +1,437 @@
+-- HSH X 2026 | Drehen oder Sterben! Flexible Camera Assist (Move Freely)
+local Players = game:GetService("Players")
+local lp = Players.LocalPlayer
+local CoreGui = game:GetService("CoreGui") or lp:WaitForChild("PlayerGui")
+local RunService = game:GetService("RunService")
+local Workspace = game:GetService("Workspace")
+local Camera = Workspace.CurrentCamera
+local UserInputService = game:GetService("UserInputService")
+
+local CORRECT_KEY = "DREHEN_KILL_X"
+
+local userThumbnail = ""
+do
+    local success, content = pcall(function()
+        return Players:GetUserThumbnailAsync(lp.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size420x420)
+    end)
+    if success and content then userThumbnail = content end
+end
+
+-- 0. نظام المفتاح السري
+local function CreateKeySystem()
+    local KeyGui = Instance.new("ScreenGui", CoreGui)
+    KeyGui.Name = "HSH_KeyGui"
+    KeyGui.ResetOnSpawn = false
+
+    local Frame = Instance.new("Frame", KeyGui)
+    Frame.Size = UDim2.new(0, 310, 0, 160)
+    Frame.Position = UDim2.new(0.5, -155, 0.5, -80)
+    Frame.BackgroundColor3 = Color3.fromRGB(15, 15, 22)
+    Instance.new("UICorner", Frame).CornerRadius = UDim.new(0, 12)
+    Instance.new("UIStroke", Frame).Color = Color3.fromRGB(255, 215, 0)
+
+    local Title = Instance.new("TextLabel", Frame)
+    Title.Size = UDim2.new(1, 0, 0, 40)
+    Title.BackgroundTransparency = 1
+    Title.Text = "HSH X - ENTER KEY (Secret)"
+    Title.TextColor3 = Color3.fromRGB(255, 215, 0)
+    Title.TextSize = 13
+    Title.Font = Enum.Font.GothamBold
+
+    local Box = Instance.new("TextBox", Frame)
+    Box.Size = UDim2.new(0.85, 0, 0, 40)
+    Box.Position = UDim2.new(0.075, 0, 0.35, 0)
+    Box.BackgroundColor3 = Color3.fromRGB(30, 30, 42)
+    Box.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Box.PlaceholderText = "Enter Key here..."
+    Box.Text = ""
+    Instance.new("UICorner", Box).CornerRadius = UDim.new(0, 8)
+
+    local Btn = Instance.new("TextButton", Frame)
+    Btn.Size = UDim2.new(0.85, 0, 0, 35)
+    Btn.Position = UDim2.new(0.075, 0, 0.7, 0)
+    Btn.BackgroundColor3 = Color3.fromRGB(255, 215, 0)
+    Btn.TextColor3 = Color3.fromRGB(10, 10, 10)
+    Btn.Text = "SUBMIT"
+    Btn.Font = Enum.Font.GothamBold
+    Instance.new("UICorner", Btn).CornerRadius = UDim.new(0, 8)
+
+    Btn.MouseButton1Click:Connect(function()
+        if Box.Text == CORRECT_KEY then
+            KeyGui:Destroy()
+            StartIntro()
+        else
+            Box.Text = ""
+            Box.PlaceholderText = "Wrong Key! Try DREHEN_KILL_X"
+        end
+    end)
+end
+
+-- 1. الإنترو
+function StartIntro()
+    local IntroGui = Instance.new("ScreenGui", CoreGui)
+    IntroGui.Name = "HSH_IntroGui"
+    IntroGui.ResetOnSpawn = false
+
+    local Background = Instance.new("Frame", IntroGui)
+    Background.Size = UDim2.new(1, 0, 1, 0)
+    Background.BackgroundColor3 = Color3.fromRGB(10, 10, 12)
+
+    local NameLabel = Instance.new("TextLabel", Background)
+    NameLabel.Size = UDim2.new(0, 700, 0, 50)
+    NameLabel.Position = UDim2.new(0.5, -350, 0.12, 0)
+    NameLabel.BackgroundTransparency = 1
+    NameLabel.TextColor3 = Color3.fromRGB(255, 215, 0)
+    NameLabel.Text = "DREHEN ODER STERBEN!"
+    NameLabel.TextSize = 22
+    NameLabel.Font = Enum.Font.GothamBold
+
+    local ProfileImage = Instance.new("ImageLabel", Background)
+    ProfileImage.Size = UDim2.new(0, 170, 0, 170)
+    ProfileImage.Position = UDim2.new(0.5, -85, 0.32, 0)
+    ProfileImage.BackgroundTransparency = 1
+    ProfileImage.Image = userThumbnail
+    Instance.new("UICorner", ProfileImage).CornerRadius = UDim.new(1, 0)
+
+    local BottomMsg = Instance.new("TextLabel", Background)
+    BottomMsg.Size = UDim2.new(0, 700, 0, 60)
+    BottomMsg.Position = UDim2.new(0.5, -350, 0.72, 0)
+    BottomMsg.BackgroundTransparency = 1
+    BottomMsg.TextColor3 = Color3.fromRGB(255, 215, 0)
+    BottomMsg.Text = "HSH X 2026 - Welcome"
+    BottomMsg.TextSize = 20
+    BottomMsg.Font = Enum.Font.GothamBold
+
+    local Sound = Instance.new("Sound")
+    Sound.SoundId = "rbxassetid://117909139728666"
+    Sound.Volume = 5
+    Sound.Parent = Workspace
+    pcall(function() Sound:Play() end)
+
+    task.spawn(function()
+        local startTime = tick()
+        while tick() - startTime < 8 do
+            ProfileImage.Rotation = ProfileImage.Rotation + 5
+            task.wait(0.02)
+        end
+    end)
+
+    task.delay(8, function()
+        pcall(function() Sound:Stop(); Sound:Destroy(); IntroGui:Destroy() end)
+        ShowLangSelection()
+    end)
+end
+
+-- 2. شاشة اختيار اللغة
+function ShowLangSelection()
+    local LangGui = Instance.new("ScreenGui", CoreGui)
+    LangGui.Name = "HSH_LangGui"
+    LangGui.ResetOnSpawn = false
+
+    local LangFrame = Instance.new("Frame", LangGui)
+    LangFrame.Size = UDim2.new(0, 310, 0, 190)
+    LangFrame.Position = UDim2.new(0.5, -155, 0.5, -95)
+    LangFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 22)
+    Instance.new("UICorner", LangFrame).CornerRadius = UDim.new(0, 14)
+    Instance.new("UIStroke", LangFrame).Color = Color3.fromRGB(255, 215, 0)
+
+    local LangTitle = Instance.new("TextLabel", LangFrame)
+    LangTitle.Size = UDim2.new(1, 0, 0, 45)
+    LangTitle.BackgroundTransparency = 1
+    LangTitle.Text = "CHOOSE LANGUAGE / اختر اللغة"
+    LangTitle.TextColor3 = Color3.fromRGB(255, 215, 0)
+    LangTitle.TextSize = 12
+    LangTitle.Font = Enum.Font.GothamBold
+
+    local ArBtn = Instance.new("TextButton", LangFrame)
+    ArBtn.Size = UDim2.new(0.42, 0, 0, 55)
+    ArBtn.Position = UDim2.new(0.05, 0, 0.45, 0)
+    ArBtn.BackgroundColor3 = Color3.fromRGB(35, 120, 70)
+    ArBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    ArBtn.Text = "🇸🇦 العربية"
+    ArBtn.Font = Enum.Font.GothamBold
+    Instance.new("UICorner", ArBtn).CornerRadius = UDim.new(0, 10)
+
+    local EnBtn = Instance.new("TextButton", LangFrame)
+    EnBtn.Size = UDim2.new(0.42, 0, 0, 55)
+    EnBtn.Position = UDim2.new(0.53, 0, 0.45, 0)
+    EnBtn.BackgroundColor3 = Color3.fromRGB(45, 85, 160)
+    EnBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    EnBtn.Text = "🇺🇸 English"
+    EnBtn.Font = Enum.Font.GothamBold
+    Instance.new("UICorner", EnBtn).CornerRadius = UDim.new(0, 10)
+
+    ArBtn.MouseButton1Click:Connect(function() LangGui:Destroy(); InitMain(true) end)
+    EnBtn.MouseButton1Click:Connect(function() LangGui:Destroy(); InitMain(false) end)
+end
+
+-- 3. الواجهة الرئيسية
+function InitMain(isAr)
+    local ScreenGui = Instance.new("ScreenGui", CoreGui)
+    ScreenGui.Name = "HSH_Main"
+    ScreenGui.ResetOnSpawn = false
+    ScreenGui.DisplayOrder = 999
+
+    local ProfileBtn = Instance.new("ImageButton", ScreenGui)
+    ProfileBtn.Size = UDim2.new(0, 42, 0, 42)
+    ProfileBtn.Position = UDim2.new(0.04, 0, 0.22, 0)
+    ProfileBtn.Image = userThumbnail
+    ProfileBtn.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
+    ProfileBtn.Visible = true
+    ProfileBtn.Active = true
+    ProfileBtn.Draggable = true
+    Instance.new("UICorner", ProfileBtn).CornerRadius = UDim.new(1, 0)
+    local ProfileStroke = Instance.new("UIStroke", ProfileBtn)
+    ProfileStroke.Color = Color3.fromRGB(255, 215, 0)
+    ProfileStroke.Thickness = 2
+
+    local MainFrame = Instance.new("Frame", ScreenGui)
+    MainFrame.Size = UDim2.new(0, 240, 0, 410)
+    MainFrame.Position = UDim2.new(0.04, 55, 0.22, 0)
+    MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 22)
+    MainFrame.BackgroundTransparency = 0.1
+    MainFrame.Visible = true
+    MainFrame.Active = true
+    MainFrame.Draggable = true
+    Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 10)
+    local MainStroke = Instance.new("UIStroke", MainFrame)
+    MainStroke.Color = Color3.fromRGB(255, 215, 0)
+
+    local TitleHeader = Instance.new("TextLabel", MainFrame)
+    TitleHeader.Size = UDim2.new(1, 0, 0, 30)
+    TitleHeader.BackgroundTransparency = 1
+    TitleHeader.TextColor3 = Color3.fromRGB(255, 215, 0)
+    TitleHeader.Text = "👑 HSH X - Drehen"
+    TitleHeader.TextSize = 12
+    TitleHeader.Font = Enum.Font.GothamBold
+
+    local function CreateButton(name, posY)
+        local btn = Instance.new("TextButton", MainFrame)
+        btn.Size = UDim2.new(0.9, 0, 0, 30)
+        btn.Position = UDim2.new(0.05, 0, 0, posY)
+        btn.BackgroundColor3 = Color3.fromRGB(35, 35, 48)
+        btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+        btn.Text = name
+        btn.TextSize = 8
+        btn.Font = Enum.Font.GothamBold
+        Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
+        return btn
+    end
+
+    local HardLockBtn = CreateButton(isAr and "🔓 قفل مرن (تتحكم براحتك): مغلق" or "🔓 Flexible Lock: OFF", 35)
+    local ProneFollowBtn = CreateButton(isAr and "🦅 طيران الصقر الحر: مغلق" or "🦅 Free Falcon Flight: OFF", 70)
+    local AbovePlayerBtn = CreateButton(isAr and "⬆️ فوق رأس اللاعب: مغلق (25m)" or "⬆️ Above Player: OFF (25m)", 105)
+    local FovSizeBtn = CreateButton(isAr and "⭕ نطاق البحث (FOV): 150" or "⭕ Search FOV: 150", 140)
+    local SpeedBtn = CreateButton(isAr and "⚡ السرعة: عادية (16)" or "⚡ Speed: Normal (16)", 175)
+    local JumpBtn = CreateButton(isAr and "🦘 قوة القفز: 50" or "🦘 Jump Power: 50", 210)
+
+    local isOpen = true
+    ProfileBtn.MouseButton1Click:Connect(function()
+        isOpen = not isOpen
+        MainFrame.Visible = isOpen
+    end)
+
+    local FootCirclePart = Instance.new("Part")
+    FootCirclePart.Size = Vector3.new(1, 0.1, 1)
+    FootCirclePart.Anchored = false
+    FootCirclePart.CanCollide = false
+    FootCirclePart.Transparency = 1
+    FootCirclePart.Parent = Workspace
+
+    local CylinderAdornment = Instance.new("CylinderHandleAdornment")
+    CylinderAdornment.Adornee = FootCirclePart
+    CylinderAdornment.Radius = 150
+    CylinderAdornment.Height = 0.2
+    CylinderAdornment.Color3 = Color3.fromRGB(255, 0, 0)
+    CylinderAdornment.Transparency = 1
+    CylinderAdornment.AlwaysOnTop = false
+    CylinderAdornment.Parent = FootCirclePart
+
+    local fovSizes = {100, 150, 250, 400}
+    local fovIdx = 2
+    FovSizeBtn.MouseButton1Click:Connect(function()
+        fovIdx = (fovIdx % #fovSizes) + 1
+        local newSize = fovSizes[fovIdx]
+        CylinderAdornment.Radius = newSize
+        FovSizeBtn.Text = isAr and ("⭕ نطاق البحث (FOV): " .. newSize) or ("⭕ Search FOV: " .. newSize)
+    end)
+
+    local hardLockEnabled = false
+    local manualLockedTarget = nil
+    local isUserMovingCamera = false
+
+    -- كشف إذا اللاعب قاعد يحرك الماوس أو الشاشة بنفسه
+    UserInputService.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+            isUserMovingCamera = true
+            task.delay(0.2, function()
+                isUserMovingCamera = false
+            end)
+        end
+    end)
+
+    HardLockBtn.MouseButton1Click:Connect(function()
+        hardLockEnabled = not hardLockEnabled
+        HardLockBtn.Text = hardLockEnabled and (isAr and "🔓 قفل مرن (تتحكم براحتك): مفعل" or "🔓 Flexible Lock: ON") or (isAr and "🔓 قفل مرن (تتحكم براحتك): مغلق" or "🔓 Flexible Lock: OFF")
+        HardLockBtn.BackgroundColor3 = hardLockEnabled and Color3.fromRGB(40, 140, 200) or Color3.fromRGB(35, 35, 48)
+        
+        if hardLockEnabled then
+            local shortestDist = fovSizes[fovIdx]
+            local foundTarget = nil
+            local hrp = lp.Character and lp.Character:FindFirstChild("HumanoidRootPart")
+            if hrp then
+                for _, player in ipairs(Players:GetPlayers()) do
+                    if player ~= lp and player.Character and player.Character:FindFirstChild("HumanoidRootPart") and player.Character:FindFirstChild("Humanoid") and player.Character.Humanoid.Health > 0 then
+                        local tHrp = player.Character.HumanoidRootPart
+                        local dist = (hrp.Position - tHrp.Position).Magnitude
+                        if dist <= shortestDist then
+                            shortestDist = dist
+                            foundTarget = tHrp
+                        end
+                    end
+                end
+            end
+            manualLockedTarget = foundTarget
+        else
+            manualLockedTarget = nil
+        end
+    end)
+
+    -- نظام طيران الصقر الحر
+    local proneFollowEnabled = false
+    local flightVelocity = nil
+    local flightGyro = nil
+
+    ProneFollowBtn.MouseButton1Click:Connect(function()
+        proneFollowEnabled = not proneFollowEnabled
+        ProneFollowBtn.Text = proneFollowEnabled and (isAr and "🦅 طيران الصقر الحر: مفعل" or "🦅 Free Falcon Flight: ON") or (isAr and "🦅 طيران الصقر الحر: مغلق" or "🦅 Free Falcon Flight: OFF")
+        ProneFollowBtn.BackgroundColor3 = proneFollowEnabled and Color3.fromRGB(40, 160, 90) or Color3.fromRGB(35, 35, 48)
+
+        local char = lp.Character
+        if char and char:FindFirstChild("HumanoidRootPart") then
+            local hrp = char.HumanoidRootPart
+            if proneFollowEnabled then
+                flightVelocity = Instance.new("BodyVelocity")
+                flightVelocity.Velocity = Vector3.new(0, 0, 0)
+                flightVelocity.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+                flightVelocity.Parent = hrp
+
+                flightGyro = Instance.new("BodyGyro")
+                flightGyro.CFrame = hrp.CFrame
+                flightGyro.MaxTorque = Vector3.new(math.huge, math.huge, math.huge)
+                flightGyro.Parent = hrp
+            else
+                if flightVelocity then flightVelocity:Destroy(); flightVelocity = nil end
+                if flightGyro then flightGyro:Destroy(); flightGyro = nil end
+            end
+        end
+    end)
+
+    -- نظام الوقوف فوق رأس اللاعب (25 متر ثابتة)
+    local abovePlayerEnabled = false
+    local aboveVelocity = nil
+    local aboveGyro = nil
+    local fixedAboveDist = 25
+
+    AbovePlayerBtn.MouseButton1Click:Connect(function()
+        abovePlayerEnabled = not abovePlayerEnabled
+
+        if abovePlayerEnabled then
+            AbovePlayerBtn.Text = isAr and ("⬆️ فوق رأس اللاعب: مفعل (" .. fixedAboveDist .. "m)") or ("⬆️ Above Player: ON (" .. fixedAboveDist .. "m)")
+            AbovePlayerBtn.BackgroundColor3 = Color3.fromRGB(180, 120, 20)
+
+            local char = lp.Character
+            if char and char:FindFirstChild("HumanoidRootPart") then
+                local hrp = char.HumanoidRootPart
+                if not aboveVelocity then
+                    aboveVelocity = Instance.new("BodyVelocity")
+                    aboveVelocity.Velocity = Vector3.new(0, 0, 0)
+                    aboveVelocity.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+                    aboveVelocity.Parent = hrp
+                end
+                if not aboveGyro then
+                    aboveGyro = Instance.new("BodyGyro")
+                    aboveGyro.CFrame = hrp.CFrame
+                    aboveGyro.MaxTorque = Vector3.new(math.huge, math.huge, math.huge)
+                    aboveGyro.Parent = hrp
+                end
+            end
+        else
+            AbovePlayerBtn.Text = isAr and "⬆️ فوق رأس اللاعب: مغلق (25m)" or "⬆️ Above Player: OFF (25m)"
+            AbovePlayerBtn.BackgroundColor3 = Color3.fromRGB(35, 35, 48)
+            if aboveVelocity then aboveVelocity:Destroy(); aboveVelocity = nil end
+            if aboveGyro then aboveGyro:Destroy(); aboveGyro = nil end
+        end
+    end)
+
+    local speeds = {16, 20, 25, 30, 40}
+    local speedIdx = 1
+    SpeedBtn.MouseButton1Click:Connect(function()
+        speedIdx = (speedIdx % #speeds) + 1
+        SpeedBtn.Text = isAr and ("⚡ السرعة: " .. speeds[speedIdx]) or ("⚡ Speed: " .. speeds[speedIdx])
+    end)
+
+    local jumps =. {50, 75, 100, 120}
+    local jumpIdx = 1
+    JumpBtn.MouseButton1Click:Connect(function()
+        jumpIdx = (jumpIdx % #jumps) + 1
+        JumpBtn.Text = isAr and ("🦘 قوة القفز: " .. jumps[jumpIdx]) or ("🦘 Jump Power: " .. jumps[jumpIdx])
+    end)
+
+    RunService.Heartbeat:Connect(function()
+        local char = lp.Character
+        if not char or not char:FindFirstChild("HumanoidRootPart") or not char:FindFirstChild("Humanoid") then return end
+        local hrp = char.HumanoidRootPart
+        local hum = char.Humanoid
+
+        FootCirclePart.CFrame = hrp.CFrame - Vector3.new(0, 3, 0)
+
+        hum.WalkSpeed = speeds[speedIdx]
+        hum.JumpPower = jumps[jumpIdx]
+
+        if proneFollowEnabled and flightVelocity and flightGyro then
+            flightGyro.CFrame = Camera.CFrame
+            flightVelocity.Velocity = Camera.CFrame.LookVector * 50
+        end
+
+        if abovePlayerEnabled and aboveVelocity and aboveGyro then
+            local targetHrp = nil
+            local shortestDist = 500
+            for _, player in ipairs(Players:GetPlayers()) do
+                if player ~= lp and player.Character and player.Character:FindFirstChild("HumanoidRootPart") and player.Character:FindFirstChild("Humanoid") and player.Character.Humanoid.Health > 0 then
+                    local tHrp = player.Character.HumanoidRootPart
+                    local dist = (hrp.Position - tHrp.Position).Magnitude
+                    if dist < shortestDist then
+                        shortestDist = dist
+                        targetHrp = tHrp
+                    end
+                end
+            end
+
+            if targetHrp then
+                local desiredPos = targetHrp.Position + Vector3.new(0, fixedAboveDist, 0)
+                aboveGyro.CFrame = CFrame.new(hrp.Position, targetHrp.Position)
+                aboveVelocity.Velocity = (desiredPos - hrp.Position) * 10
+            else
+                aboveVelocity.Velocity = Vector3.new(0, 0, 0)
+            end
+        end
+
+        -- القفل المرن: يساعدك بضبط الزاوية نحو اللاعب، لكن لو حركت يدك/ماوس تحكم الكاميرا بكل حرية بدون ما يقفل عليك!
+        if hardLockEnabled and manualLockedTarget and not isUserMovingCamera then
+            local pModel = manualLockedTarget.Parent
+            local pHum = pModel and pModel:FindFirstChildOfClass("Humanoid")
+            if pModel and pHum and pHum.Health > 0 then
+                local camPos = Camera.CFrame.Position
+                local targetPos = manualLockedTarget.Position + Vector3.new(0, 0.5, 0)
+                local goalCFrame = CFrame.new(camPos, targetPos)
+                -- نعطيك حركة سلسة ومرنة تسمح لك بالتحكم والالتفاف متى ما بغيت
+                Camera.CFrame = Camera.CFrame:Lerp(goalCFrame, 0.1)
+            else
+                manualLockedTarget = nil
+            end
+        end
+    end)
+end
+
+CreateKeySystem()
